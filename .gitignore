@@ -3,6 +3,7 @@
 *.o
 *.mod
 *.exe
+*.out
 *.x
 \#*
 *~
@@ -14,6 +15,7 @@ core
 
 #ignore default binary name
 a.out
+prog
 
 #ignore heat solver outputs
 heat_*.png
