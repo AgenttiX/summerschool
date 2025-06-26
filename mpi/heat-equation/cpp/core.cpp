@@ -7,7 +7,7 @@
 // Exchange the boundary values
 void exchange(Field& field, const ParallelData parallel)
 {
-    const int nx = field.temperature.nx;
+    const int ny = field.temperature.ny;
     // double* sbuf;
     // double* rbuf;
 
@@ -15,11 +15,24 @@ void exchange(Field& field, const ParallelData parallel)
     // to element, e.g. field.temperature.data(i, j)
 
     // Send to up, receive from down
-    MPI_Send(field.temperature.data(1, 0), nx, MPI_DOUBLE, parallel.nup, parallel.rank, MPI_COMM_WORLD);
-    MPI_Recv(field.temperature.data(0, field.ny+1), nx, MPI_DOUBLE, parallel.ndown, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    // MPI_Send(field.temperature.data(1, 0), ny, MPI_DOUBLE, parallel.nup, parallel.rank, MPI_COMM_WORLD);
+    // MPI_Recv(field.temperature.data(field.nx+1, 0), ny, MPI_DOUBLE, parallel.ndown, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     // Send to down, receive from up
-    MPI_Send(field.temperature.data(0, field.ny), nx, MPI_DOUBLE, parallel.ndown, parallel.rank, MPI_COMM_WORLD);
-    MPI_Recv(field.temperature.data(0, 0), nx, MPI_DOUBLE, parallel.nup, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    // MPI_Send(field.temperature.data(field.nx, 0), ny, MPI_DOUBLE, parallel.ndown, parallel.rank, MPI_COMM_WORLD);
+    // MPI_Recv(field.temperature.data(0, 0), ny, MPI_DOUBLE, parallel.nup, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    constexpr int tag_up = 11;
+    constexpr int tag_down = 12;
+    MPI_Sendrecv(
+        field.temperature.data(1, 0), ny, MPI_DOUBLE, parallel.nup, tag_up,
+        field.temperature.data(field.nx+1, 0), ny, MPI_DOUBLE, parallel.ndown, tag_up,
+        MPI_COMM_WORLD, MPI_STATUS_IGNORE
+    );
+    MPI_Sendrecv(
+        field.temperature.data(field.nx, 0), ny, MPI_DOUBLE, parallel.ndown, tag_down,
+        field.temperature.data(0, 0), ny, MPI_DOUBLE, parallel.nup, tag_down,
+        MPI_COMM_WORLD, MPI_STATUS_IGNORE
+    );
 }
 
 // Update the temperature values using five-point stencil */
