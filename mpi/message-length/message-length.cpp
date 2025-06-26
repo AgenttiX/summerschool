@@ -8,7 +8,6 @@
 int randomMessageLength();
 
 int main(int argc, char *argv[]) {
-
     MPI_Init(&argc, &argv);
 
     int rank, ntasks;
@@ -24,7 +23,6 @@ int main(int argc, char *argv[]) {
     const int tag = 123;
 
     if (rank == 1) {
-
         // Generate random message size in rank 1 only. Other ranks do not know the size
         const int messageLength = randomMessageLength();
         std::vector<int> message(messageLength);
@@ -38,21 +36,14 @@ int main(int argc, char *argv[]) {
         printf("Rank 1: Sending %d integers to rank 0\n", messageLength);
         fflush(stdout);
         MPI_Send(message.data(), message.size(), MPI_INT, 0, tag, MPI_COMM_WORLD);
-    }
-
-    if (rank == 0) {
-
+    } else if (rank == 0) {
         int messageLength = 1;
-        std::vector<int> receiveBuffer(messageLength);
-
-        // TODO: receive the full message sent from rank 1.
-        // Use MPI_Probe and MPI_Get_count to figure out the number of integers in the message.
-        // Store this count in 'messageLength', then reallocate 'receiveBuffer'
-        // to correct size, and finally receive the message.
-
         const int sourceRank = 1;
+        MPI_Status status;
+        MPI_Probe(sourceRank, tag, MPI_COMM_WORLD, &status);
+        MPI_Get_count(&status, MPI_INT, &messageLength);
 
-        // ... your code here ...
+        std::vector<int> receiveBuffer(messageLength);
 
         // Receive the message. Will error with MPI_ERR_TRUNCATE if the buffer is too small for the incoming message
         MPI_Recv(receiveBuffer.data(), receiveBuffer.size(), MPI_INT,
@@ -64,9 +55,7 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < receiveBuffer.size(); i++ ) {
             printf("receiveBuffer[%d] : %d\n", i, receiveBuffer[i]);
         }
-
     }
-
     MPI_Finalize();
     return 0;
 }
@@ -76,7 +65,6 @@ int main(int argc, char *argv[]) {
 
 // Generate random int in specified range (inclusive), using Mersenne Twister
 int randomInt(int min, int max) {
-
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distribution(min, max);
@@ -85,9 +73,7 @@ int randomInt(int min, int max) {
 
 // Generates a random message length for the test message
 int randomMessageLength() {
-
     int res = randomInt(2, 10);
     assert(res > 0 && "Can't happen: generated nonsensical message length...");
-
     return res;
 }

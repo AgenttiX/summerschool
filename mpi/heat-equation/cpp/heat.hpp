@@ -10,22 +10,18 @@ struct ParallelData {
     int nup, ndown;      // Ranks of neighbouring MPI tasks
 
     ParallelData() {      // Constructor
+        // start: query number of MPI tasks and store it in
+        // the size attribute of the class
 
-      // TODO start: query number of MPI tasks and store it in
-      // the size attribute of the class
-
-      // Query MPI rank of this task and store it in the rank attribute
-      // Determine also up and down neighbours of this domain and store
-      // them in nup and ndown attributes, remember to cope with
-      // boundary domains appropriatly
-
-      nup =
-      ndown =
-
-      // TODO end
-
+        // Query MPI rank of this task and store it in the rank attribute
+        // Determine also up and down neighbours of this domain and store
+        // them in nup and ndown attributes, remember to cope with
+        // boundary domains appropriatly
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        nup = (rank) ? rank - 1 : MPI_PROC_NULL;
+        ndown = (rank + 1 < size) ? rank + 1 : MPI_PROC_NULL;
     };
-
 };
 
 // Class for temperature field

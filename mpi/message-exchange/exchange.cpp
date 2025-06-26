@@ -3,7 +3,6 @@
 #include <mpi.h>
 
 int main(int argc, char *argv[]) {
-
     constexpr int arraysize = 100000;
     constexpr int msgsize = 100;
     std::vector<int> message(arraysize);
@@ -25,22 +24,15 @@ int main(int argc, char *argv[]) {
         receiveBuffer[i] = -1;
     }
 
-    // TODO: Implement sending and receiving as defined in the assignment,
-    // using MPI_Send and MPI_Recv functions.
-    // Send 'msgsize' integers from the array "message",
-    // and receive the same number of integers into "receiveBuffer".
-    // You may hardcode the message passing to happen between ranks 0 and 1.
-
     if (rank == 0) {
-
-        // ... your code here ...
-
+        // The tag is not used
+        MPI_Send(message.data(), msgsize, MPI_INT, 1, 0, MPI_COMM_WORLD);
+        MPI_Recv(receiveBuffer.data(), msgsize, MPI_INT, 1, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printf("Rank %i received %i elements, first %i\n", rank, msgsize, receiveBuffer[0]);
     }
     else if (rank == 1) {
-
-        // .. your code here ...
-
+        MPI_Recv(receiveBuffer.data(), msgsize, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Send(message.data(), msgsize, MPI_INT, 0, 0, MPI_COMM_WORLD);
         printf("Rank %i received %i elements, first %i\n", rank, msgsize, receiveBuffer[0]);
     }
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh -eu
 #SBATCH --job-name=scalability
 #SBATCH --account=project_462000956
 #SBATCH --reservation=SummerSchoolGPU
@@ -10,4 +10,4 @@
 # Enable GPU-aware MPI
 export MPICH_GPU_SUPPORT_ENABLED=1
 
-srun ./heat_hip
+srun ./heat-equation-3d/heat_hip

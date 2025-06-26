@@ -7,20 +7,19 @@
 // Exchange the boundary values
 void exchange(Field& field, const ParallelData parallel)
 {
-
-    double* sbuf;
-    double* rbuf;
-    // TODO start: implement halo exchange
+    const int nx = field.temperature.nx;
+    // double* sbuf;
+    // double* rbuf;
 
     // You can utilize the data() method of the Matrix class to obtain pointer
     // to element, e.g. field.temperature.data(i, j)
 
     // Send to up, receive from down
-
+    MPI_Send(field.temperature.data(1, 0), nx, MPI_DOUBLE, parallel.nup, parallel.rank, MPI_COMM_WORLD);
+    MPI_Recv(field.temperature.data(0, field.ny+1), nx, MPI_DOUBLE, parallel.ndown, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     // Send to down, receive from up
-
-
-    // TODO end
+    MPI_Send(field.temperature.data(0, field.ny), nx, MPI_DOUBLE, parallel.ndown, parallel.rank, MPI_COMM_WORLD);
+    MPI_Recv(field.temperature.data(0, 0), nx, MPI_DOUBLE, parallel.nup, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 }
 
 // Update the temperature values using five-point stencil */

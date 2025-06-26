@@ -7,12 +7,8 @@
 
 #include "heat.hpp"
 
-int main(int argc, char **argv)
-{
-
-  // TODO start: initialize MPI
-
-  // TODO end
+int main(int argc, char **argv) {
+    MPI_Init(&argc, &argv);
 
     const int image_interval = 100;    // Image output interval
 
@@ -75,9 +71,6 @@ int main(int argc, char **argv)
     // Output the final field
     write_field(previous, nsteps, parallelization);
 
-  // TODO start: finalize MPI
-
-  // TODO end
-
+    MPI_Finalize();
     return 0;
 }
