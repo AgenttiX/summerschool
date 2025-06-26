@@ -15,11 +15,13 @@ core
 
 #ignore default binary name
 a.out
+hello
 prog
 
 #ignore heat solver outputs
 heat_*.png
 heat
+heat_hip
 heat_mpi
 
 #ignore default SLURM output files
