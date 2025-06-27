@@ -70,20 +70,6 @@ I'm thread 2 in process 0
 </div>
 
 
-# Hybrid programming styles: fine/coarse grained
-
-- Fine-grained
-    - Use **omp parallel do/for** on the most intensive loops
-    - Possible to hybridize an existing MPI code with little effort and in
-      parts
-
-- Coarse-grained
-    - Use OpenMP threads to replace MPI tasks
-    - Whole (or most of) program within the same parallel region
-    - More likely to scale over the whole node, enables all cores to
-      communicate (if supported by MPI implementation)
-
-
 # Multiple thread communication
 
 - Hybrid programming is relatively straightforward in cases where
@@ -133,16 +119,10 @@ call mpi_sendrecv(senddata, n, mpi_real, pid, tidtag, &
 # MPI thread support levels
 
 - Modern MPI libraries support all threading levels
-    - OpenMPI: Build time configuration, check with<br>
-      `ompi_info | grep 'Thread support'`
-    - MPICH: Set `MPICH_MAX_THREAD_SAFETY` environment variable to
-      `single`, `funneled`, `serialized`, or `multiple` to select the
-      threading level
-    - Intel MPI: When compiling with `-qopenmp` a thread safe version of the
-      MPI library is automatically used
+  - LUMI and Mahti support all threading levels
 - Note that using `MPI_THREAD_MULTIPLE` requires the MPI library to
   internally lock some data structures to avoid race conditions
-    - May result in additional overhead in MPI calls
+  - May result in additional overhead in MPI calls
 
 # Checking the thread support level in the program
 
