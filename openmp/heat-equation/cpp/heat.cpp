@@ -15,11 +15,10 @@ void Field::setup(int nx_in, int ny_in)
 }
 
 void Field::generate() {
-
     // Radius of the source disc 
     auto radius = nx_full / 6.0;
-    #pragma omp parallel
-    {
+    // #pragma omp parallel
+    // {
     #pragma omp for
     for (int i = 0; i < nx + 2; i++) {
         for (int j = 0; j < ny + 2; j++) {
@@ -50,5 +49,5 @@ void Field::generate() {
         // Bottom
         temperature(nx + 1, j) = 5.0;
     }
-    }
+    // }
 }

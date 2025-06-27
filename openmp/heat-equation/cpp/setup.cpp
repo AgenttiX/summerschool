@@ -50,20 +50,29 @@ void initialize(int argc, char *argv[], Field& current,
         nsteps = std::atoi(argv[3]);
         break;
     default:
+        #pragma omp master
         std::cout << "Unsupported number of command line arguments" << std::endl;
+
         exit(-1);
     }
 
+    #pragma omp master
+    {
     if (read_file) {
         std::cout << "Reading input from " + input_file << std::endl;
         read_field(current, input_file);
     } else {
         current.setup(rows, cols);
+    }
+    }
 
+    #pragma omp barrier
+
+    if (! read_file) {
         current.generate();
     }
 
     // copy "current" field also to "previous"
+    #pragma omp master
     previous = current;
-
 }

@@ -38,8 +38,12 @@ mpi/parallel-pi-two-procs/pi
 
 openmp/data-sharing/variables
 openmp/execution-controls/jacobi
+openmp/fibonacci/fibonacci
+openmp/mandelbrot/cpp/mandelbrot
+openmp/mandelbrot/cpp/mandelbrot.png
 openmp/race-condition/race
 openmp/reduction/sum
+openmp/simple-tasks/tasks
 openmp/work-sharing/sharing
 
 exercises/programming/fortran/hello/hello

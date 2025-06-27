@@ -26,7 +26,7 @@ const int SUBDIV = 4;
 
 
 // |z|^2 of a complex number z
-float abs2(complex<double> v)
+inline float abs2(complex<double> v)
 {
     return v.real() * v.real() + v.imag() * v.imag();
 }
@@ -39,7 +39,7 @@ int kernel(int w, int h, complex<double> cmin, complex<double> cmax,
     float fx = (float)x / w;
     float fy = (float)y / h;
     double real = cmin.real() + fx * dc.real();
-    double imag = cmin.imag() + fy *dc.imag();
+    double imag = cmin.imag() + fy * dc.imag();
     complex<double> c(real, imag);
     int iteration = 0;
     complex<double> z = c;
@@ -68,20 +68,16 @@ int kernel(int w, int h, complex<double> cmin, complex<double> cmax,
  * ---------------
  */
 void mandelbrot_block(int *iter_counts, int w, int h, complex<double> cmin,
-                      complex<double> cmax, int x0, int y0, int d, int depth)
-{
-
-// TODO Parallelize the recursive function call
-// with OpenMP tasks
-
-    int block_size = d / SUBDIV;
+                      complex<double> cmax, int x0, int y0, int d, int depth) {
+    const int block_size = d / SUBDIV;
     if (depth + 1 < MAX_DEPTH && block_size > MIN_SIZE) {
         // Subdivide recursively
         for (int i = 0; i < SUBDIV; i++) {
             for (int j = 0; j < SUBDIV; j++) {
+                #pragma omp task
                 mandelbrot_block(iter_counts, w, h, cmin, cmax,
                                  x0 + i * block_size, y0 + j * block_size,
-                                 d / SUBDIV, depth + 1);
+                                 block_size, depth + 1);
             }
         }
     } else {
@@ -105,14 +101,13 @@ int main(int argc, char **argv)
     int pic_bytes = w * h * sizeof(int);
     iter_counts = (int *)malloc(pic_bytes);
 
-    complex<double> cmin(-1.5, -1.0);
-    complex<double> cmax(0.5, 1.0);
+    const complex<double> cmin(-1.5, -1.0);
+    const complex<double> cmax(0.5, 1.0);
 
     double t1 = omp_get_wtime();
 
-// TODO create parallel region. How many threads should be calling
-// mandelbrot_block in this uppermost level?
-
+    #pragma omp parallel
+    #pragma omp single
     {
         mandelbrot_block(iter_counts, w, h, cmin, cmax,
                          0, 0, w, 1);
@@ -130,4 +125,3 @@ int main(int argc, char **argv)
     free(iter_counts);
     return 0;
 }
-
