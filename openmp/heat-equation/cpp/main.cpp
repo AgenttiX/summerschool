@@ -17,16 +17,13 @@ int main(int argc, char **argv)
 {
 
     const int image_interval = 100;    // Image output interval
-
     int nsteps;                 // Number of time steps
-
-    int num_threads = 1;
-
+    int num_threads;
     Field current, previous;    // Current and previous temperature fields
 
-    // TODO: determine number of threads
-
-    // TODO end
+    #pragma omp parallel
+    #pragma omp single
+    num_threads = omp_get_num_threads();
 
     initialize(argc, argv, current, previous, nsteps);
 

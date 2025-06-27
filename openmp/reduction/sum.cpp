@@ -14,15 +14,15 @@ int main(void)
     }
 
     sumex = (long) NX * (NX + 1) / ((long) 2);
-    printf("Arithmetic sum formula (exact):                  %ld\n", sumex);
+    printf("Arithmetic sum formula (exact): %ld\n", sumex);
 
     sum = 0.0;
-    // This results in a race condition
-    #pragma omp parallel for num_threads(4)
+    /* Version with data race */
+    #pragma omp parallel for private(i) reduction(+:sum) num_threads(4)
     for (i = 0; i < NX; i++) {
         sum += vecA[i];
     }
-    printf("Sum: %ld\n", sum);
+    printf("Sum with fixed data race:       %ld\n", sum);
 
     return 0;
 }

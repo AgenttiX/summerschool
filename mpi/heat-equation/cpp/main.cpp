@@ -42,9 +42,18 @@ int main(int argc, char **argv) {
     auto start_clock = MPI_Wtime();
 
     // Time evolve
+    MPI_Request requests[2];
     for (int iter = 1; iter <= nsteps; iter++) {
-        exchange(previous, parallelization);
-        evolve(current, previous, a, dt);
+        // Non-blocking version
+        exchange_nb_init(previous, parallelization, requests);
+        evolve(current, previous, a, dt, 1);
+        exchange_nb_wait(requests);
+        evolve_edges(current, previous, a, dt);
+
+        // Blocking version
+        // exchange(previous, parallelization);
+        // evolve(current, previous, a, dt);
+
         if (iter % image_interval == 0) {
             write_field(current, iter, parallelization);
         }

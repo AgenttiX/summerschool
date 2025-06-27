@@ -23,11 +23,25 @@ heat_*.png
 heat
 heat_hip
 heat_mpi
+heat_omp
 
 #ignore default SLURM output files
 slurm-*.out
 
 #ignore specific exercise & solution binaries
+mpi/message-chain/chain
+mpi/message-chain/chain_sendrecv
+mpi/message-exchange/exchange
+mpi/message-length/message-length
+mpi/parallel-pi-general/pi
+mpi/parallel-pi-two-procs/pi
+
+openmp/data-sharing/variables
+openmp/execution-controls/jacobi
+openmp/race-condition/race
+openmp/reduction/sum
+openmp/work-sharing/sharing
+
 exercises/programming/fortran/hello/hello
 solutions/programming/fortran/hello/hello
 
