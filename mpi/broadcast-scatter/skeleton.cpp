@@ -28,7 +28,15 @@ int main(int argc, char *argv[])
     double t0 = MPI_Wtime();
 
     /* Send everywhere */
-    // TODO: Implement the broadcast of the array buf
+    if (rank == 0) {
+        for (int i = 1; i < size; i++) {
+            MPI_Send(buf.data(), buf_size, MPI_INT, i, i, MPI_COMM_WORLD);
+        }
+    } else {
+        MPI_Recv(buf.data(), buf_size, MPI_INT, 0, rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    // TODO: Implement scatter as well
 
     /* End timing */
     double t1 = MPI_Wtime();

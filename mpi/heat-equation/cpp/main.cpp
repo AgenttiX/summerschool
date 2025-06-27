@@ -31,7 +31,6 @@ int main(int argc, char **argv) {
         std::cout << "Average temperature at start: " << average_temp << std::endl;
     }
 
-
     const double a = 0.5;     // Diffusion constant
     auto dx2 = current.dx * current.dx;
     auto dy2 = current.dy * current.dy;
@@ -42,7 +41,7 @@ int main(int argc, char **argv) {
     auto start_clock = MPI_Wtime();
 
     // Time evolve
-    MPI_Request requests[2];
+    MPI_Request requests[4];
     for (int iter = 1; iter <= nsteps; iter++) {
         // Non-blocking version
         exchange_nb_init(previous, parallelization, requests);

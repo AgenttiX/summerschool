@@ -7,10 +7,9 @@
 
 #include "heat.hpp"
 
-int main(int argc, char **argv)
-{
-
-    MPI_Init(&argc, &argv);
+int main(int argc, char **argv) {
+    int provided, required=MPI_THREAD_FUNNELED;
+    MPI_Init_thread(&argc, &argv, required, &provided);
 
     const int image_interval = 100;    // Image output interval
 

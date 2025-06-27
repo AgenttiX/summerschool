@@ -35,8 +35,17 @@ void exchange(Field& field, const ParallelData parallel) {
     );
 }
 
-void exchange_nb_init(Field& field, const ParallelData parallel, MPI_Request requests[2]) {
+void exchange_nb_init(Field& field, const ParallelData parallel, MPI_Request requests[4]) {
     const int ny = field.temperature.ny;
+
+    MPI_Isend(field.temperature.data(1, 0), ny, MPI_DOUBLE, parallel.nup, tag_up, MPI_COMM_WORLD, &requests[0]);
+    MPI_Irecv(field.temperature.data(field.nx+1, 0), ny, MPI_DOUBLE, parallel.ndown, tag_up, MPI_COMM_WORLD, &requests[1]);
+
+    MPI_Isend(field.temperature.data(field.nx, 0), ny, MPI_DOUBLE, parallel.ndown, tag_down, MPI_COMM_WORLD, &requests[2]);
+    MPI_Irecv(field.temperature.data(0, 0), ny, MPI_DOUBLE, parallel.nup, tag_down, MPI_COMM_WORLD, &requests[3]);
+
+    // MPI_Isendrecv is introduced in MPI 4.0 and OpenMPI 5.0
+    /*
     MPI_Isendrecv(
         field.temperature.data(1, 0), ny, MPI_DOUBLE, parallel.nup, tag_up,
         field.temperature.data(field.nx+1, 0), ny, MPI_DOUBLE, parallel.ndown, tag_up,
@@ -47,15 +56,15 @@ void exchange_nb_init(Field& field, const ParallelData parallel, MPI_Request req
         field.temperature.data(0, 0), ny, MPI_DOUBLE, parallel.nup, tag_down,
         MPI_COMM_WORLD, MPI_STATUS_IGNORE
     );
+    */
 }
 
-void exchange_nb_wait(MPI_Request requests[2]) {
-    MPI_Waitall(2, requests MPI_STATUS_IGNORE);
+void exchange_nb_wait(MPI_Request requests[4]) {
+    MPI_Waitall(4, requests, MPI_STATUS_IGNORE);
 }
 
-// Todo: configure the limits in the outer evolve function instead
 inline double evolve_inner(
-        int i, int j, const Field& prev,
+        const int i, const int j, const Field& prev,
         const double a, const double dt,
         const double inv_dx2, const double inv_dy2) {
     return prev(i, j) + a * dt * (
@@ -69,8 +78,8 @@ void evolve(Field& curr, const Field& prev, const double a, const double dt, con
     // Compilers do not necessarily optimize division to multiplication, so make it explicit
     const double inv_dx2 = 1.0 / (prev.dx * prev.dx);
     const double inv_dy2 = 1.0 / (prev.dy * prev.dy);
-    const j_min = 1 + margin;
-    const j_max = curr.ny + 1 - margin;
+    const int j_min = 1 + margin;
+    const int j_max = curr.ny + 1 - margin;
 
     // Determine the temperature field at next time step
     // As we have fixed boundary conditions, the outermost gridpoints
@@ -85,15 +94,14 @@ void evolve(Field& curr, const Field& prev, const double a, const double dt, con
 void evolve_edges(Field& curr, const Field& prev, const double a, const double dt) {
     const double inv_dx2 = 1.0 / (prev.dx * prev.dx);
     const double inv_dy2 = 1.0 / (prev.dy * prev.dy);
-    i_max = curr.ny
 
     for (int i = 1; i < curr.nx + 1; i++) {
         curr(i, 1) = evolve_inner(i, 1, prev, a, dt, inv_dx2, inv_dy2);
-        curr(i, curr.ny + 1) = evolve_inner(i, curr.ny + 1, prev, a, dt, inv_dx2, inv_dy2);
+        curr(i, curr.ny) = evolve_inner(i, curr.ny, prev, a, dt, inv_dx2, inv_dy2);
     }
     // The corners have already been updated
     for (int j = 2; j < curr.ny; j++) {
         curr(1, j) = evolve_inner(1, j, prev, a, dt, inv_dx2, inv_dy2);
-        curr(curr.nx + 1, j) = evolve_inner(curr.nx + 1, j, prev, a, dt, inv_dx2, inv_dy2);
+        curr(curr.nx, j) = evolve_inner(curr.nx, j, prev, a, dt, inv_dx2, inv_dy2);
     }
 }

@@ -54,8 +54,8 @@ void initialize(int argc, char *argv[], Field& current,
                 Field& previous, int& nsteps, ParallelData parallel);
 
 void exchange(Field& field, const ParallelData parallel);
-void exchange_nb_init(Field& field, const ParallelData parallel, MPI_Request requests[2]);
-void exchange_nb_wait(MPI_Request requests[2]);
+void exchange_nb_init(Field& field, const ParallelData parallel, MPI_Request requests[4]);
+void exchange_nb_wait(MPI_Request requests[4]);
 
 void evolve(Field& curr, const Field& prev, const double a, const double dt, const int margin);
 void evolve_edges(Field& curr, const Field& prev, const double a, const double dt);
