@@ -28,9 +28,11 @@ heat_omp
 #ignore default SLURM output files
 slurm-*.out
 
-#ignore specific exercise & solution binaries
+# Ignore specific exercise & solution binaries
+mpi/broadcast-scatter/broadcast
 mpi/message-chain/chain
 mpi/message-chain/chain_sendrecv
+mpi/message-chain-non-blocking/chain
 mpi/message-exchange/exchange
 mpi/message-length/message-length
 mpi/parallel-pi-general/pi
@@ -39,6 +41,7 @@ mpi/parallel-pi-two-procs/pi
 openmp/data-sharing/variables
 openmp/execution-controls/jacobi
 openmp/fibonacci/fibonacci
+openmp/heat-hybrid/cpp/heat_hybrid
 openmp/mandelbrot/cpp/mandelbrot
 openmp/mandelbrot/cpp/mandelbrot.png
 openmp/race-condition/race
