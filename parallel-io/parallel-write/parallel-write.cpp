@@ -18,21 +18,59 @@ void debug_read_file(const char* filename);
 
 void single_writer(const std::vector<int>& localData, const char* filename) {
     // Gets called from all MPI ranks. 'localData' contains different data on each rank.
-    // TODO: Gather contents of 'localData' to one MPI process and write it all to file 'filename' ("spokesperson" strategy).
+    // Gather contents of 'localData' to one MPI process and write it all to file 'filename' ("spokesperson" strategy).
     // The output should be ordered such that data from rank 0 comes first, then rank 1, and so on
 
     // You can assume that 'localData' has same length in all MPI processes:
     const size_t numElementsPerRank = localData.size();
 
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if (rank == 0) {
+        int ntasks;
+        MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+        std::vector<int> rbuf(numElementsPerRank);
+
+        // MPI_File file;
+        // MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
+
+        // MPI_Offset offset = 0;
+        // MPI_File_write_at(file, offset, localData.data(), numElementsPerRank, MPI_INT, MPI_STATUS_IGNORE);
+
+        FILE* file = fopen(filename, "wb");
+        if (file == nullptr) {
+            printf("Could no open file at %s\n.", filename);
+        }
+        fwrite(localData.data(), sizeof(int), numElementsPerRank, file);
+        for (int i = 1; i < ntasks; i++) {
+            MPI_Recv(rbuf.data(), numElementsPerRank, MPI_INT, i, 123, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            // size_t offset = rank * numElementsPerRank * sizeof(int);
+            // MPI_File_write_at(file, offset, localData.data(), numElementsPerRank, MPI_INT, MPI_STATUS_IGNORE);
+            fwrite(rbuf.data(), sizeof(int), numElementsPerRank, file);
+        }
+        fclose(file);
+    } else {
+        MPI_Send(localData.data(), numElementsPerRank, MPI_INT, 0, 123, MPI_COMM_WORLD);
+    }
 }
 
 void collective_write(const std::vector<int>& localData, const char* filename) {
-    // TODO: Like single_writer(), but implement a parallel write using MPI_File_write_at_all()
+    // Like single_writer(), but implement a parallel write using MPI_File_write_at_all()
+    int rank, ntasks;;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
 
+    MPI_File file;
+    MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
+    const size_t numElementsPerRank = localData.size();
+    MPI_File_set_size(file, ntasks * numElementsPerRank * sizeof(int));
+
+    MPI_Offset offset = rank * numElementsPerRank * sizeof(int);
+    MPI_File_write_at_all(file, offset, localData.data(), numElementsPerRank, MPI_INT, MPI_STATUS_IGNORE);
 }
 
 int main(int argc, char **argv) {
-
     MPI_Init(&argc, &argv);
 
     int rank, ntasks;

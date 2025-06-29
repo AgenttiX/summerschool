@@ -51,9 +51,10 @@ int main(int argc, char** argv) {
 
         // ### PART 1 ###
 
-        // TODO: open a new HDF5 file, call it 'my_datasets.h5'.
+        // Open a new HDF5 file, call it 'my_datasets.h5'.
         // Override the file if it exists already (hint: the HDF5 file creation function has a flag for this)
-
+        // TODO
+        H5DCreate(...);
 
         hid_t fileId = -1; // replace with a proper file open call
 

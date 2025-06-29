@@ -49,6 +49,8 @@ openmp/reduction/sum
 openmp/simple-tasks/tasks
 openmp/work-sharing/sharing
 
+parallel-io/parallel-write/parallel-write
+
 exercises/programming/fortran/hello/hello
 solutions/programming/fortran/hello/hello
 
