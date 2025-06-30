@@ -46,24 +46,62 @@ void launch_kernel(const char *kernel_name, const char *file, int32_t line,
     // the maximum.
     const int max_threads_x = get_device_attribute(
         hipDeviceAttribute_t::hipDeviceAttributeMaxBlockDimX);
+    const int max_threads_y = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxBlockDimY);
+    const int max_threads_z = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxBlockDimZ);
     if (threads.x <= 0 || max_threads_x < threads.x) {
-        // TODO
         // The given threads.x is not within the correct limits.
         // Print error message and exit.
         // See above how it's done for the shared memory check.
+        std::fprintf(stderr, "Invalid threads.x: %d, max: %d", threads.x, max_threads_x);
+        exit(EXIT_FAILURE);
     }
-    // TODO: Do the same for y and z dimensions.
+    // Do the same for y and z dimensions.
+    if (threads.y <= 0 || max_threads_y < threads.y) {
+        std::fprintf(stderr, "Invalid threads.y: %d, max: %d", threads.y, max_threads_y);
+        exit(EXIT_FAILURE);
+    }
+    if (threads.z <= 0 || max_threads_z < threads.z) {
+        std::fprintf(stderr, "Invalid threads.z: %d, max: %d", threads.z, max_threads_z);
+        exit(EXIT_FAILURE);
+    }
 
-    // TODO: Do the same for all dimensions of grid size.
+    // Do the same for all dimensions of grid size.
     // Hint: hipDeviceAttribute_t::hipDeviceAttributeMaxGridDimX
     // Compare againts the input argument 'dim3 blocks'
     // Similarly to blocks, also the grid sizes must be greater than zero in all
     // dimensions
+    const int max_blocks_x = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxGridDimX);
+    const int max_blocks_y = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxGridDimY);
+    const int max_blocks_z = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxGridDimZ);
+    if (blocks.x <= 0 || max_blocks_x < blocks.x) {
+        std::fprintf(stderr, "Invalid blocks.x: %d, max: %d", blocks.x, max_blocks_x);
+        exit(EXIT_FAILURE);
+    }
+    if (blocks.y <= 0 || max_blocks_y < blocks.y) {
+        std::fprintf(stderr, "Invalid blocks.y: %d, may: %d", blocks.y, max_blocks_y);
+        exit(EXIT_FAILURE);
+    }
+    if (blocks.z <= 0 || max_blocks_z < blocks.z) {
+        std::fprintf(stderr, "Invalid blocks.z: %d, maz: %d", blocks.z, max_blocks_z);
+        exit(EXIT_FAILURE);
+    }
 
-    // TODO: Finally make sure the total number of threads per block is less
+    // Finally make sure the total number of threads per block is less
     // than the maximum: i.e.
     // hipDeviceAttribute_t::hipDeviceAttributeMaxThreadsPerBlock >=
     // threads.x * threads.y * threads.z
+    const int num_threads = threads.x * threads.y * threads.z;
+    const int max_threads = get_device_attribute(
+        hipDeviceAttribute_t::hipDeviceAttributeMaxThreadsPerBlock);
+    if (num_threads > max_threads) {
+        fprintf(stderr, "Too many threads: %d, max: %d", num_threads, max_threads);
+        exit(EXIT_FAILURE);
+    }
 
     // Reset the error variable to success.
     result = hipGetLastError();

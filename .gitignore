@@ -29,6 +29,14 @@ heat_omp
 slurm-*.out
 
 # Ignore specific exercise & solution binaries
+gpu/exercises/bonus/02-kernels/kernel_errors/errors
+gpu/exercises/fundamentals/02-kernels/02_kernel_launch/kernel
+gpu/exercises/fundamentals/02-kernels/03_kernel_launch_wrapper/wrapper
+gpu/exercises/fundamentals/02-kernels/04_api_queries/api
+gpu/exercises/fundamentals/02-kernels/05_api_errors/errors
+gpu/exercises/fundamentals/02-kernels/06_fill/fill
+gpu/exercises/fundamentals/02-kernels/07_taylor_for/taylor
+
 mpi/broadcast-scatter/broadcast
 mpi/message-chain/chain
 mpi/message-chain/chain_sendrecv

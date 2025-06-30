@@ -5,10 +5,14 @@
 #include "../../../error_checking.hpp"
 
 __global__ void fill(float *arr, float a, size_t num_values) {
-    // TODO: Fill the array 'arr' with the constant 'a'.
+    // Fill the array 'arr' with the constant 'a'.
     // Assume the array size is 'num_values'
     // Consult earlier exercises where we launched kernels and the lecture
     // slides for help
+    const uint32_t ind = blockIdx.x * blockDim.x + threadIdx.x;
+    if (ind < num_values) {
+        arr[ind] = a;
+    }
 }
 
 int main() {
@@ -17,20 +21,25 @@ int main() {
     static constexpr float a = 3.4f;
 
     float *d_arr = nullptr;
-    // TODO: Allocate memory on the GPU
-    // - hipMalloc
+    // Allocate memory on the GPU
+    HIP_ERRCHK(hipMalloc(&d_arr, num_bytes));
 
     // TODO: Define grid dimensions + launch the device kernel
-    int threads = 0;
-    int blocks = 0;
-    LAUNCH_KERNEL(fill, blocks, threads, 0, 0, d_arr, a, num_values);
+    // LUMI has AMD MI250X GPUs
+    // Two GPU dies with 110 CUs each = 220 CUs
+    // Only one die is given by default = 110 CUs
+    // const int32_t threads = max_threads_per_block = get_device_attribute(
+    //    hipDeviceAttribute_t::hipDeviceAttributeMaxThreadsPerBlock);
+    int threads = 1024;
+    int blocks = num_values / threads + 1;
+    LAUNCH_KERNEL(fill, dim3(blocks, 1, 1), dim3(threads, 1, 1), 0, 0, d_arr, a, num_values);
 
     float *h_arr = static_cast<float *>(std::malloc(num_bytes));
-    // TODO: Copy results back to CPU
-    // - hipMemcpy
+    // Copy results back to CPU
+    HIP_ERRCHK(hipMemcpy(h_arr, d_arr, num_bytes, hipMemcpyDeviceToHost));
 
-    // TODO: Free device memory
-    // - hipFree
+    // Free device memory
+    HIP_ERRCHK(hipFree(d_arr));
 
     printf("Some values copied from the GPU: %f, %f, %f, %f\n", h_arr[0],
            h_arr[1], h_arr[num_values - 2], h_arr[num_values - 1]);
