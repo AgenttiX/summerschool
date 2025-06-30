@@ -6,14 +6,18 @@ lang:   en
 
 # GPUs on LUMI-G
 
-<div class="column"  style="width:50%; text-align: center;">
-  ![](img/lumi-g.svg){width=90%}
-  <small>LUMI-G Node.</small>
-</div>
-<div class="column"  style="width:50%; text-align: center;">
-  ![](img/amd-mi250.avif){width=50%}
-  <small>Single AMD MI250 GPU</small>
-</div>
+:::::: {.columns}
+::: {.column width="50%"}
+![](img/lumi-g.svg){.center width=90%}
+
+<small>LUMI-G Node.</small>
+:::
+::: {.column width="50%"}
+![](img/amd-mi250.avif){.center width=50%}
+
+<small>Single AMD MI250 GPU</small>
+:::
+::::::
 
 # FLOPs (Floating Point Operations)
 
@@ -21,7 +25,7 @@ lang:   en
 - Commonly used to estimate compute cost of training/inference.
 - Training ML Models = 2 × FLOPs/pass (forward + backward).
 
-# GPU Characteristics
+# AMD MI250 GPU Characteristics
 - Computer Power
     - Peak FP64 Performance: 47.9 TFLOPs
     - Peak FP32 Performance: 95.7 TFLOPs
@@ -32,17 +36,20 @@ lang:   en
 - 3.2 TB/s total memory bandwidth
 
 # Peak vs Max-Achievable FLOPs
-<div class="column"  style="width:60%; text-align: center;">
-  ![](img/maf-flops.png){width=80%}
-  <small>Picture from [AMD](https://rocm.blogs.amd.com/software-tools-optimization/Understanding_Peak_and_Max-Achievable_FLOPS/README.html)</small>
-</div>
-<div class="column"  style="width:60%">
-  - <small>Peak performance is calculated based on the hardware charachteristics</small>
-  - <small>$FLOPs/s = Cores \times Ops/Cyle \times Clock$</small>
-  - <small>Memory Bandwidth Limits, Underutilization, Load Imbalance, etc.</small>
-  - <small>Memory Bandwidth Limits, Underutilization, Load Imbalance, etc.</small>
-  - <small>Usually **35-70% of Peak FLOPs**</small>
-</div>
+
+:::::: {.columns}
+::: {.column width="60%"}
+![](img/maf-flops.png){.center width=80%}
+
+<small>Picture from [AMD](https://rocm.blogs.amd.com/software-tools-optimization/Understanding_Peak_and_Max-Achievable_FLOPS/README.html)</small>
+:::
+::: {.column width="40%"}
+- <small>Peak performance is calculated based on the hardware characteristics</small>  
+- <small>$FLOPs/s = Cores \times Ops/Cycle \times Clock$</small>  
+- <small>Memory Bandwidth Limits, Underutilization, Load Imbalance, etc.</small>  
+- <small>Usually **35–70% of Peak FLOPs** in practice</small>
+:::
+::::::
 
 # ML Parameters vs FLOPs
 

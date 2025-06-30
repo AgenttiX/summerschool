@@ -1,11 +1,13 @@
 #!/bin/bash
+#SBATCH --job-name=single_gpu_cifar100
 #SBATCH --account=project_462000956
 #SBATCH --partition=dev-g
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 #SBATCH --gpus-per-task=1
 #SBATCH --mem=60G
 #SBATCH --time=0:30:00
+#SBATCH --output=single_gpu_cifar100-%j.out
 
 module use  /appl/local/containers/ai-modules
 module load singularity-AI-bindings
