@@ -12,7 +12,7 @@ static inline void hip_errchk(hipError_t result, const char *file, int line) {
 }
 
 // DO 2^WORK loops of work in kernel
-#define WORK 0
+#define WORK 8
 
 // Switch between pinned and pageable host memory
 #define USE_PINNED_HOST_MEM 1
@@ -190,7 +190,6 @@ void case_3(hipEvent_t *start_event, hipEvent_t *stop_event, hipStream_t *stream
 }
 
 int main(){
-  
   // Problem size
   constexpr int n_total = 1<<24; // pow(2, 22);
 
@@ -248,11 +247,11 @@ int main(){
   for (int i = 0; i < n_streams; ++i) HIP_ERRCHK(hipStreamDestroy(streams[i]));
 
   // Free host memory
-#if USE_PINNED_HOST_MEM == 1
-  HIP_ERRCHK(hipHostFree(a));
-#else
-  free(a);
-#endif
+  #if USE_PINNED_HOST_MEM == 1
+    HIP_ERRCHK(hipHostFree(a));
+  #else
+    free(a);
+  #endif
 
   //Free device memory
   HIP_ERRCHK(hipFree(d_a));

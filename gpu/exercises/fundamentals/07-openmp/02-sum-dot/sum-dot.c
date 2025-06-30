@@ -1,9 +1,9 @@
+#include <omp.h>
 #include <stdio.h>
 
 #define NX 102400
 
-int main(void)
-{
+int main(void) {
     double vecA[NX], vecB[NX], vecC[NX];
 
     /* Initialization of the vectors */
@@ -12,20 +12,22 @@ int main(void)
         vecB[i] = vecA[i] * vecA[i];
     }
 
-    // TODO start: create a data region and offload the two computations
+    // Start: create a data region and offload the two computations
     // so that data is kept in the device between the computations
 
+    #pragma omp target data map(to: vecA[:NX], vecB[:NX]) map(from: vecC[:NX])
+    #pragma omp loop
     for (int i = 0; i < NX; i++) {
         vecC[i] = vecA[i] + vecB[i];
     }
 
     double res = 0.0;
 
+    #pragma target data map(to: vecB[:NX], vecC[:NX]) map(tofrom: res)
+    #pragma omp parallel for reduction(+:res)
     for (int i = 0; i < NX; i++) {
         res += vecC[i] * vecB[i];
     }
-
-    // TODO end
 
     double sum = 0.0;
     /* Compute the check value */

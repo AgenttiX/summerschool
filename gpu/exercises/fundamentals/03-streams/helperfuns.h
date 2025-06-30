@@ -1,6 +1,6 @@
 __device__ float recip_factpow(float x, int n) {
   float retval(1);
-  for (int k = 1; k<= n; ++k) {
+  for (int k = 1; k <= n; ++k) {
     retval = retval * x/k;
   }
   return retval;
@@ -8,7 +8,7 @@ __device__ float recip_factpow(float x, int n) {
 
 __device__ int factorial(int m) {
   float retval(1);
-  for (int k = 2; k<=m; ++k) {
+  for (int k = 2; k <= m; ++k) {
     retval *= k;
   }
   return retval;
@@ -16,7 +16,7 @@ __device__ int factorial(int m) {
 
 __device__ int ipow_mod(int m, int n, int mod) {
   int ret(1);
-  while ( n!=0) {
+  while (n != 0) {
     if (n%2) ret = (ret*m) % mod;
     m = (m*m) % mod;
     n >>= 1;
@@ -78,7 +78,7 @@ __global__ void kernel_c(float *a, int n)
   if (tid < n) {
     float x = float(100)*float(tid)/n;
     for (size_t m = 0; m < Q; ++m) {
-      a[tid] += pow(-1,m)*recip_factpow(x/2, m)*recip_factpow(x/2,m+1);
+      a[tid] += pow(-1, m) * recip_factpow(x/2, m) * recip_factpow(x/2, m+1);
     }
   }
 }

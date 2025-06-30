@@ -4,6 +4,8 @@
  * Task is to:
  * - Allocate and free managed memory 
  * - trace with 'rocprof --hip-trace'. Do you see any memory copy call?
+ * Answer: There is a very short hipHostMallocManaged call in the very beginning, but no memory copy call.
+ *   Launching the kernel takes quite a while, though.
  */
 
 #include <stdio.h>
@@ -13,13 +15,13 @@
 // GPU kernel definition
 __global__ void kernel(float *a, int n)
 {
-  int tid = threadIdx.x + blockIdx.x * blockDim.x;
-  int stride = gridDim.x * blockDim.x;
+  const int tid = threadIdx.x + blockIdx.x * blockDim.x;
+  const int stride = gridDim.x * blockDim.x;
 
   if (tid < n) {
-    float x = (float)tid;
-    float s = sinf(x);
-    float c = cosf(x);
+    const float x = (float)tid;
+    const float s = sinf(x);
+    const float c = cosf(x);
     a[tid] = a[tid] + sqrtf(s*s+c*c);
   }
 }
@@ -28,7 +30,7 @@ float max_error(float *a, int n)
 {
   float max_err = 0;
   for (int i = 0; i < n; i++) {
-    float error = fabs(a[i]-1.0f);
+    const float error = fabs(a[i]-1.0f);
     if (i<10) printf("%f ", a[i]);
     if (error > max_err) max_err = error;
   }
@@ -45,17 +47,18 @@ int main() {
 
   float *a;
 
-  // TODO: allocate hip managed memory for pointer a
-
+  // Allocate hip managed memory for pointer a
+  HIP_ERRCHK(hipMallocManaged(&a, N_bytes));
   memset(a, 0, N_bytes);
 
   kernel<<<gridsize, blocksize>>>(a, N);
   HIP_ERRCHK(hipGetLastError());
   
-  // TODO: Synchronize
+  // Synchronize
+  HIP_ERRCHK(hipStreamSynchronize(0));
 
   printf("error: %f\n", max_error(a, N));
 
-
-  // TODO: Free memory
+  // Free memory
+  HIP_ERRCHK(hipHostFree(a));
 }

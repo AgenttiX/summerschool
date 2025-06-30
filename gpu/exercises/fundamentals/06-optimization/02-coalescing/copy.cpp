@@ -53,13 +53,17 @@ int main() {
   /*                     dim3(tile_dim_x, tile_dim_y), 0, 0, d_in, d_out, width, */
   /*                     height);} */
 
-
-  
   for(int i=1;i<=21;i++){
-    hipLaunchKernelGGL(copy_kernel, dim3(block_x, block_y),
-                      dim3(tile_dim_x, tile_dim_y), 0, 0, d_in, d_out, width,
-                      height, (1<<i)-1);}
-  
+    hipLaunchKernelGGL(
+      copy_kernel,
+      dim3(block_x, block_y),
+      dim3(tile_dim_x, tile_dim_y),
+      0, 0, d_in, d_out, width, height,
+      // The -1 is here on purpose so that the index is not a power of two or some other nicely aligned number,
+      // but more like a random number in the correct range
+      (1<<i)-1
+    );
+  }
 
   hipDeviceSynchronize();
   float time_kernel;
@@ -67,7 +71,6 @@ int main() {
   printf("Done!\n");
   hipMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
             hipMemcpyDeviceToHost);
-
 
   return 0;
 }
