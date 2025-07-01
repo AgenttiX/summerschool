@@ -1,9 +1,15 @@
 .DS_Store
 .idea
+*.amdgpu
+*.bc
 *.o
 *.mod
 *.exe
+*.i
+*.ii
+*.lst
 *.out
+*.s
 *.x
 \#*
 *~
@@ -28,14 +34,39 @@ heat_omp
 #ignore default SLURM output files
 slurm-*.out
 
-# Ignore specific exercise & solution binaries
+# Ignore specific exercise & solution binaries and other output
 gpu/exercises/bonus/02-kernels/kernel_errors/errors
+gpu/exercises/fundamentals/**/*-prof
+gpu/exercises/fundamentals/**/results.*
+
 gpu/exercises/fundamentals/02-kernels/02_kernel_launch/kernel
 gpu/exercises/fundamentals/02-kernels/03_kernel_launch_wrapper/wrapper
 gpu/exercises/fundamentals/02-kernels/04_api_queries/api
 gpu/exercises/fundamentals/02-kernels/05_api_errors/errors
 gpu/exercises/fundamentals/02-kernels/06_fill/fill
 gpu/exercises/fundamentals/02-kernels/07_taylor_for/taylor
+
+gpu/exercises/fundamentals/03-streams/01-basics
+gpu/exercises/fundamentals/03-streams/02-asynckernel
+gpu/exercises/fundamentals/03-streams/03-asyncmemcopy
+gpu/exercises/fundamentals/03-streams/04-eventsync
+gpu/exercises/fundamentals/04-memory/01-basics
+
+gpu/exercises/fundamentals/06-optimization/01-trace/streams
+gpu/exercises/fundamentals/06-optimization/02-coalescing/copy
+gpu/exercises/fundamentals/06-optimization/02-coalescing/metrics.csv
+gpu/exercises/fundamentals/06-optimization/02-coalescing/metrics.png
+
+gpu/exercises/fundamentals/07-openmp/01-hello-world/hello-cpu
+gpu/exercises/fundamentals/07-openmp/01-hello-world/hello-gpu
+gpu/exercises/fundamentals/07-openmp/02-sum-dot/sum-dot
+gpu/exercises/fundamentals/07-openmp/02-sum-dot/solution/sum-dot
+gpu/exercises/fundamentals/07-openmp/03-dot-product/dot-product
+gpu/exercises/fundamentals/07-openmp/04-mimic-hip/mimic-hip
+
+gpu/exercises/fundamentals/08-sycl/01-info/enumerate
+gpu/exercises/fundamentals/08-sycl/03-axpy/axpy
+gpu/exercises/fundamentals/09-multi-gpu/01-ping-pong/ping-pong
 
 mpi/broadcast-scatter/broadcast
 mpi/message-chain/chain
