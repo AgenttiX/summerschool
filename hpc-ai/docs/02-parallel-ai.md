@@ -56,11 +56,11 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 
 :::::: {.columns}
 ::: {.column width="50%"}
-**Data Parallelism**  
+**Model Parallelism**  
 ![](img/data_parallelism_general.png){.center width=45%}
 :::
 ::: {.column width="50%"}
-**Model Parallelism (MP)**  
+**Data Parallelism (MP)**  
 ![](img/model_parallelism_general.png){.center width=70%}
 :::
 ::::::
@@ -68,16 +68,20 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 # Data Parallelism
 
 :::::: {.columns}
-::: {.column width="58%"}
-![](img/data_parallelism.png){.center width=60%}
-:::
 ::: {.column width="40%"}
-- <small>How it works:</small>  
-- <small>Copy model to each GPU.</small>  
-- <small>Split inputs across GPUs.</small>  
-- <small>Compute forward/backward.</small>  
+![](img/data_parallelism.png){.center width=70%}
+:::
+::: {.column width="30%"}
+
+- <small> How it works:</small>
+- <small> Copy model to each GPU.</small>
+- <small>Split inputs across GPUs.</small>
+- <small>Compute forward/backward.</small>
 - <small>Aggregate gradients.</small>
 
+:::
+::: {.column width="40%"}
+<small>
 **Overheads**
 
 | Type                      | Description   |
@@ -85,6 +89,7 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 | Communication Overhead    | High          |
 | Partial distribution      | Possible      |
 | Underutilization          | Possible      |
+</small>
 :::
 ::::::
  
@@ -95,6 +100,13 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 
 # Pytroch Distributed Data Parallelism (DDP)
   ![](img/pytorch_ddp_details.png){width=75%}
+
+
+# DDP AllReduce overlap
+Without overlap:
+  ![](img/ddp_non_interleaved.png){.center width=60%}
+With overlap: 
+  ![](img/ddp_overlap.png){.center width=60%}
 
 
 # DDP vs DP
@@ -110,14 +122,26 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 # MP: Pipeline Parallelism
 
 :::::: {.columns}
-::: {.column width="50%"}
-![](img/pipeline_parallelism.png){.center width=60%}
+::: {.column width="40%"}
+![](img/pipeline_parallelism.png){.center width=70%}
+:::
+::: {.column width="30%"}
+- <small>Vertical Parallelism:</small>
+- <small>Split layer-wise across GPUs.</small>
+- <small>Each GPU processes part of the model sequentially.</small>
+- <small>Chain of dependencies</small>
+
 :::
 ::: {.column width="40%"}
-- <small>Idea: Split model layer-wise across GPUs.</small>  
-- <small>Each GPU processes part of the model sequentially.</small>  
-- <small>Underutilization is an issue.</small>  
-- <small>Maximizes compute by overlapping stages (with microbatching).</small>
+<small>
+**Overheads**
+
+| Type                      | Description   |
+|---------------------------|---------------|
+| Communication Overhead    | Low           |
+| Partial distribution      | No            |
+| Underutilization          | High          |
+</small>
 :::
 ::::::
 
@@ -133,14 +157,26 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 # MP: Tensor Parallelism
 
 :::::: {.columns}
-::: {.column width="58%"}
-![](img/tensor_parallelism.png){.center width=60%}
+::: {.column width="60%"}
+![](img/tensor_parallelism.png){.center width=70%}
+:::
+::: {.column width="30%"}
+- <small>Horizontal Parallelism:</small>
+- <small>Divide tensors horizontally.</small>
+- <small>Store part of the layers or blocks on different GPUs.</small>
+- <small>Concat outputs between GPUs manually.</small>
 :::
 ::: {.column width="40%"}
-- <small>Horizontal Parallelism:</small>  
-- <small>Divide tensors horizontally.</small>  
-- <small>Store part of the layers or blocks on different GPUs.</small>  
-- <small>Concat outputs between GPUs manually.</small>
+<small>
+**Overheads**
+
+| Type                      | Description   |
+|---------------------------|---------------|
+| Communication Overhead    | Low           |
+| Partial distribution      | No            |
+| Underutilization          | No            |
+| Model Modification        | High            |
+</small>
 :::
 ::::::
 
@@ -148,14 +184,16 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 
 # How MP works?
 
-![](img/tp_example.png){.center width=60%}
+![](img/tp_example.png){width=60%}
 
 # Mix and Match: DP + PP!
-
-![](img/dp_pp.png){.center width=70%}
+  ![](img/dp_pp.png){.center width=70%}
 - This is from [Deepspeed](https://www.microsoft.com/en-us/research/blog/zero-deepspeed-new-system-optimizations-enable-training-models-with-over-100-billion-parameters/)
+
 - It reduces the bubble issue
+
 - For DP, there are two GPUs: GPU0 and GPU1
+
 - Inside each DP rank, there is a PP.
 
 # Reality: 3D Parallelism
@@ -171,7 +209,6 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 ::::::
 
 
-
 # ZeRO: Advance Data Parallelism
 - Issue with DP: Full optimizer states and gradients duplicated on every GPU.
   - Not efficient with VRAM
@@ -179,11 +216,25 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 - Result: Efficient use of VRAM
   - Train MUCH larger models without running out of memory.
 
+
 # ZeRO
 <div class="column"  style="width:100%; text-align: center;">
-  ![](img/parallelism_zero.png){width=80%}
+  ![](img/parallelism_zero.png){width=100%}
 </div>
 
+
+# ZeRO Stages
+- For 7B model with 64 GPUs:
+- Zero-1O: ptimizer State Partitioning
+  - 4x memory reduction, same communication volume as DP
+- Zero-2: Optimizer + Gradient Partitioning
+  - 8x memory reduction, same communication volume as DP
+- Zero-3: Optimizer + Gradient + Parameter Partitioning
+  - Memory reduction is linear with DP degree.
+  - For example, with 64 GPUs will yield a 64x memory reduction.
+  - There is a modest 50% increase in communication volume.
+
+  
 # Summary
 - Model fits onto a single GPU -> DDP or ZeRO
 - Model doesn’t fit onto a single GPU
@@ -193,4 +244,4 @@ train_loader = torch.utils.data.DataLoader(data, ..., num_workers=N)
 - Multi-Node / Multi-GPU:
   - ZeRO - as it requires close to no modifications to the model
   - PP+TP+DDP: less communications, but requires massive changes to the model
-  - PP+TP+ZeRO: when you have slow inter-node connectivity and still low on GPU memory
+  - PP+TP+ZeRO-1: when you have slow inter-node connectivity and still low on GPU memory
