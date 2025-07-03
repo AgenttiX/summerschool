@@ -8,9 +8,11 @@ from torch.utils.tensorboard import SummaryWriter
 import torch.profiler
 import time
 
+
 # TODO: change the model to resnet50 and investigate the performance
 def get_model():
     return torchvision.models.resnet152(num_classes=100)
+
 
 def train():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -80,6 +82,7 @@ def train():
                   flush=True)  # Reset timer for next group
             
     writer.close()
+
 
 if __name__ == "__main__":
     print("Training on single GPU")

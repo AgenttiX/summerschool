@@ -12,8 +12,10 @@ import torch.profiler
 import argparse
 import time
 
+
 def get_model():
     return torchvision.models.resnet152(num_classes=100)  # CIFAR-100 has 100 classes
+
 
 def train(rank, world_size):
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
@@ -93,6 +95,7 @@ def train(rank, world_size):
 
     writer.close()
     dist.destroy_process_group()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
